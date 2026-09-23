@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>重量百分濃度練習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --text: #1f2430;
+    --text-soft: #5b6270;
+    --accent: #2f6fed;
+    --accent-soft: #e8f0ff;
+    --border: #e1e5ee;
+    --correct: #1f9d55;
+    --correct-bg: #e9f9ef;
+    --wrong: #e0483e;
+    --wrong-bg: #fdecec;
+    --table-head: #2f6fed;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161f;
+      --card-bg: #1d2030;
+      --text: #eef0f6;
+      --text-soft: #a2a8ba;
+      --accent: #6f9bff;
+      --accent-soft: #24304d;
+      --border: #2c3146;
+      --correct: #4fd884;
+      --correct-bg: #14301f;
+      --wrong: #ff7b70;
+      --wrong-bg: #3a1a1a;
+      --table-head: #3a5ecb;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161f;
+    --card-bg: #1d2030;
+    --text: #eef0f6;
+    --text-soft: #a2a8ba;
+    --accent: #6f9bff;
+    --accent-soft: #24304d;
+    --border: #2c3146;
+    --correct: #4fd884;
+    --correct-bg: #14301f;
+    --wrong: #ff7b70;
+    --wrong-bg: #3a1a1a;
+    --table-head: #3a5ecb;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 48px;
+  }
+  .wrap { width: 100%; max-width: 640px; }
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin: 4px 0 6px;
+  }
+  .subtitle { color: var(--text-soft); font-size: 0.92rem; margin-bottom: 18px; line-height: 1.6; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(20,20,40,0.04);
+  }
+  .card h2 {
+    font-size: 1rem;
+    margin: 0 0 10px;
+    color: var(--accent);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: center; padding: 8px 4px; }
+  thead th {
+    background: var(--table-head);
+    color: #fff;
+    font-weight: 700;
+  }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; }
+  tbody td { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child td { border-bottom: none; }
+  .note { font-size: 0.8rem; color: var(--text-soft); margin-top: 8px; }
+
+  .score {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .q-text {
+    font-size: 1.05rem;
+    line-height: 1.9;
+    margin-bottom: 16px;
+  }
+  .q-text b { color: var(--accent); }
+  .options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+  }
+  .option-btn {
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 14px 10px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: transform 0.05s ease, opacity 0.15s ease, border-color 0.15s ease;
+  }
+  .option-btn:active { transform: scale(0.97); }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .option-btn.correct-answer { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); }
+  .option-btn.wrong-answer { border-color: var(--wrong); background: var(--wrong-bg); color: var(--wrong); }
+  .option-btn:disabled:not(.correct-answer):not(.wrong-answer) { opacity: 0.5; }
+  button {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.05s ease, opacity 0.15s ease;
+  }
+  button:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary { background: var(--accent-soft); color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+    line-height: 1.8;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: var(--correct-bg); color: var(--correct); }
+  .feedback.wrong { background: var(--wrong-bg); color: var(--wrong); }
+  .feedback .steps { color: var(--text); font-weight: 400; margin-top: 6px; }
+  .feedback .verdict { font-weight: 900; font-size: 1rem; }
+  .actions { margin-top: 16px; display: flex; justify-content: flex-end; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>重量百分濃度練習</h1>
+  <div class="subtitle">硝酸鉀（KNO₃）在不同溫度下的溶解度如下表。請先判斷溶液是否已經飽和，再計算出此溶液的重量百分濃度（四捨五入至整數）。</div>
+
+  <div class="card">
+    <h2>硝酸鉀溶解度表（克 / 100 克水）</h2>
+    <table>
+      <thead>
+        <tr><th>溫度 (°C)</th><th>20</th><th>30</th><th>40</th><th>50</th><th>60</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>溶解度 (g)</td><td>31.6</td><td>45.8</td><td>63.9</td><td>85.5</td><td>110</td></tr>
+      </tbody>
+    </table>
+    <div class="note">溶解度：在該溫度下，每 100 克水中最多能溶解的溶質克數。</div>
+  </div>
+
+  <div class="card">
+    <div class="q-header">
+      <h2 style="margin:0;">題目</h2>
+      <span class="score" id="score">答對 0 / 共 0 題</span>
+    </div>
+    <div class="q-text" id="qText"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="actions">
+      <button class="btn-secondary" id="nextBtn" style="display:none;">下一題</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const solubilityTable = { 20: 31.6, 30: 45.8, 40: 63.9, 50: 85.5, 60: 110 };
+  const temps = Object.keys(solubilityTable).map(Number);
+  const waterOptions = [50, 80, 100, 120, 150, 200, 250, 300];
+
+  let current = null;
+  let stats = { correct: 0, total: 0 };
+  const answered = { value: false };
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function generateQuestion() {
+    const temp = pick(temps);
+    const water = pick(waterOptions);
+    const S = solubilityTable[temp];
+    const maxSolute = (S * water) / 100;
+
+    const isSaturated = Math.random() < 0.5;
+    let soluteMass;
+    if (isSaturated) {
+      const extra = Math.max(1, Math.round(maxSolute * (0.05 + Math.random() * 0.25)));
+      soluteMass = Math.round(maxSolute) + extra;
+    } else {
+      let low = Math.max(1, Math.round(maxSolute * 0.2));
+      let high = Math.max(low + 1, Math.floor(maxSolute * 0.9));
+      soluteMass = Math.floor(low + Math.random() * (high - low));
+      if (soluteMass < 1) soluteMass = 1;
+    }
+
+    const actuallyDissolved = Math.min(soluteMass, maxSolute);
+    const concentration = (actuallyDissolved / (water + actuallyDissolved)) * 100;
+    const answer = Math.round(concentration);
+    const saturated = soluteMass > maxSolute;
+
+    current = { temp, water, soluteMass, S, maxSolute, saturated, answer };
+    current.options = generateOptions(current);
+  }
+
+  function generateOptions(q) {
+    const { temp, water, soluteMass, saturated, maxSolute, answer } = q;
+    const opts = new Set([answer]);
+
+    // 常見錯誤1：忽略飽和判斷，永遠用「加入的溶質量」去算
+    const m1 = Math.round((soluteMass / (water + soluteMass)) * 100);
+    // 常見錯誤2：分母只除水，沒有除以(溶質+水)
+    const usedMass = saturated ? maxSolute : soluteMass;
+    const m2 = Math.round((usedMass / water) * 100);
+    // 常見錯誤3：查錯溫度對應的溶解度
+    const otherTemps = temps.filter(t => t !== temp);
+    const otherTemp = pick(otherTemps);
+    const otherMax = (solubilityTable[otherTemp] * water) / 100;
+    const otherDissolved = Math.min(soluteMass, otherMax);
+    const m3 = Math.round((otherDissolved / (water + otherDissolved)) * 100);
+
+    [m1, m2, m3].forEach(v => {
+      if (v > 0 && v < 100 && v !== answer) opts.add(v);
+    });
+
+    // 用隨機偏移補滿到 5 個選項
+    let guard = 0;
+    while (opts.size < 5 && guard < 50) {
+      guard++;
+      const offset = (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 8));
+      const v = answer + offset;
+      if (v > 0 && v < 100) opts.add(v);
+    }
+
+    const arr = Array.from(opts);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function renderQuestion() {
+    generateQuestion();
+    const { temp, water, soluteMass, options } = current;
+    document.getElementById('qText').innerHTML =
+      `在 <b>${temp}°C</b> 時，將 <b>${soluteMass} 克</b>硝酸鉀加入 <b>${water} 克</b>水中，充分攪拌後，此溶液的重量百分濃度最接近下列何者？`;
+
+    const optionsEl = document.getElementById('options');
+    optionsEl.innerHTML = '';
+    options.forEach(value => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = value + '%';
+      btn.dataset.value = value;
+      btn.addEventListener('click', () => checkAnswer(value, btn));
+      optionsEl.appendChild(btn);
+    });
+
+    document.getElementById('nextBtn').style.display = 'none';
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback';
+    fb.innerHTML = '';
+    answered.value = false;
+  }
+
+  function updateScore() {
+    document.getElementById('score').textContent = `答對 ${stats.correct} / 共 ${stats.total} 題`;
+  }
+
+  function checkAnswer(userAnswer, btn) {
+    if (answered.value) return;
+    const { temp, water, soluteMass, S, maxSolute, saturated, answer } = current;
+
+    answered.value = true;
+    stats.total += 1;
+    const isCorrect = userAnswer === answer;
+    if (isCorrect) stats.correct += 1;
+    updateScore();
+
+    document.querySelectorAll('.option-btn').forEach(b => {
+      b.disabled = true;
+      const v = Number(b.dataset.value);
+      if (v === answer) b.classList.add('correct-answer');
+      else if (b === btn) b.classList.add('wrong-answer');
+    });
+
+    const satNote = saturated
+      ? `因為加入的 ${soluteMass} 克超過 ${temp}°C 時 ${water} 克水最多能溶解的量（${S} × ${water}/100 ≈ ${maxSolute.toFixed(1)} 克），所以溶液已經飽和，多餘的固體不會溶解，計算濃度時只能算「實際溶解」的 ${maxSolute.toFixed(1)} 克。`
+      : `因為加入的 ${soluteMass} 克沒有超過 ${temp}°C 時 ${water} 克水最多能溶解的量（${S} × ${water}/100 ≈ ${maxSolute.toFixed(1)} 克），所以溶質全部溶解，直接用 ${soluteMass} 克去計算即可。`;
+
+    const steps = `
+      <div class="steps">
+        1. 查表得 ${temp}°C 時溶解度為 ${S} g/100g水。<br>
+        2. 這些水最多能溶解：${S} × ${water} ÷ 100 ≈ <b>${maxSolute.toFixed(1)} 克</b>。<br>
+        3. ${satNote}<br>
+        4. 重量百分濃度 = 溶質 ÷ (溶質 + 水) × 100% ≈ ${((saturated ? maxSolute : soluteMass) / (water + (saturated ? maxSolute : soluteMass)) * 100).toFixed(1)}% → 四捨五入為 <b>${answer}%</b>
+      </div>`;
+
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
+    fb.innerHTML = `<span class="verdict">${isCorrect ? '答對了！' : `不對，正確答案是 ${answer}%`}</span>${steps}`;
+
+    document.getElementById('nextBtn').style.display = '';
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', renderQuestion);
+
+  renderQuestion();
+</script>
+</body>
+</html>
